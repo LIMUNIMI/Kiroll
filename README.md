@@ -5,7 +5,7 @@ is a monophonic accessible digital musical instrument whose control is based on 
 The focus then was on providing total controllability of the instrument through these two channels of interaction 
 for full autonomous use of the same, even in the presence of severe motor limitations (e.g., quadriplegia).
 
-The instrument was developed as a thesis project at the conclusion of the three-year course of study in 'Musical Informatics'.
+The instrument was developed by Luca Valente as a thesis project at the conclusion of the three-year course of study in 'Musical Informatics'.
 
 <h2>Hardware needed</h2>
 
