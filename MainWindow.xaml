@@ -1,0 +1,1471 @@
+﻿<Window x:Class="Kiroll.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="MainWindow"
+        Width="1920"
+        Height="1080"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        WindowStyle="None"
+        mc:Ignorable="d">
+
+    <!--#region Styles-->
+    <Window.Resources>
+        <!--Button style-->
+        <Style TargetType="Button" x:Key="RoundButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" 
+                        BorderThickness="2"
+                        CornerRadius="25" 
+                        Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!--End Button style-->
+
+        <!--Separator (Vertical Border) Style-->
+        <Style x:Key="SeparatorStyleVertical"
+           TargetType="{x:Type Border}">
+            <Setter Property="BorderThickness" Value="0,0,0,0"/>
+            <Setter Property="BorderBrush" Value="#FFC5C5C5"/>
+            <Setter Property="Margin" Value="0,0,0,0"/>
+            <Setter Property="Width" Value="3"/>
+            <Setter Property="Height" Value="auto"/>
+            <Setter Property="Background" Value="Black"/>
+        </Style>
+        <!--End Separator (Vertical Border) Style-->
+
+        <!--Separator (Horizontal Border) Style-->
+        <Style x:Key="SeparatorStyleHorizontal"
+           TargetType="{x:Type Border}">
+            <Setter Property="BorderThickness" Value="0,0,0,0"/>
+            <Setter Property="BorderBrush" Value="#FFC5C5C5"/>
+            <Setter Property="Margin" Value="0,0,0,0"/>
+            <Setter Property="Width" Value="320"/>
+            <Setter Property="Height" Value="2"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Opacity" Value="0.5" />
+        </Style>
+        <!--End Separator (Horizontal Border) Style-->
+
+        <!--Combobox style-->
+        <Style x:Key="ComboboxButtonStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border   
+                             Background="White"
+                             x:Name="border"   
+                             CornerRadius="0,5,5,0"   
+                             BorderThickness="0,2,2,2"  
+                             BorderBrush="Black">
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ComboboxTextBoxStyle" TargetType="{x:Type TextBox}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Grid>
+                            <Border CornerRadius="5,0,0,5"  
+                                BorderThickness="2,2,2,2"  
+                                Background="{TemplateBinding Background}"  
+                                BorderBrush="Black">
+                                <ScrollViewer x:Name="PART_ContentHost"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ComboboxStyle" TargetType="{x:Type ComboBox}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition MaxWidth="18"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Name="PART_EditableTextBox"  
+                                Style="{StaticResource ComboboxTextBoxStyle}"  
+                                Padding="5,0,0,0"  
+                                Height="{TemplateBinding Height}"
+                                IsReadOnly="True"/>
+                            <ToggleButton Grid.Column="1" Margin="0"  
+                                   Height="{TemplateBinding Height}"  
+                                   Style="{StaticResource ComboboxButtonStyle}"  
+                                   Focusable="False"  
+                                   IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"  
+                                   ClickMode="Press">
+                                <Path Grid.Column="1"  
+                                      HorizontalAlignment="Center"  
+                                      VerticalAlignment="Center"  
+                                      Data="M 0 0 L 4 4 L 8 0 Z"  
+                                      Fill="Black" />
+                            </ToggleButton>
+                            <ContentPresenter Name="ContentSite"  
+                                Content="{TemplateBinding SelectionBoxItem}"  
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"  
+                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"  
+                                VerticalAlignment="Center"  
+                                HorizontalAlignment="Left"                                 
+                                Margin="5,0,0,0"/>
+                            <Popup Name="Popup"  
+                               Placement="Bottom"  
+                               IsOpen="{TemplateBinding IsDropDownOpen}"  
+                               Focusable="False"  
+                               PopupAnimation="Slide">
+                                <Grid Name="DropDown"  
+                                 SnapsToDevicePixels="True"          
+                                 MinWidth="{TemplateBinding ActualWidth}"  
+                                 MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border   
+                                   x:Name="DropDownBorder"  
+                                   BorderThickness="2"  
+                                   CornerRadius="5"  
+                                   BorderBrush="Black"
+                                   Background="White"/>
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!--Combobox style-->
+    </Window.Resources>
+    <!--#endregion End Styles-->
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="/Images/Backgrounds/Main.jpg" ></ImageBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <!--#region Top Bar (Row 0)-->
+        <StackPanel Grid.Row="0"  Orientation="Horizontal"  
+                    HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    Width="auto" Margin="5,5,5,0">
+
+            <!--Left Top Bar Embellishment-->
+            <Image Source="Images/Embellishments/LeftRight_TopBar.png"
+                   Margin="0,5,10,5"
+                   Width="auto"
+                ></Image>
+            <!--End Left Top Bar Embellishment-->
+            <Border          
+            CornerRadius="8"
+            Width="auto"           
+            VerticalAlignment="Top"
+            BorderBrush="Black"
+            BorderThickness="3">
+                <Border.Background>
+                    <ImageBrush ImageSource="/Images/Backgrounds/TopBar.jpg" TileMode="Tile" />
+                </Border.Background>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="375" />
+                        <ColumnDefinition Width="375" />
+                        <ColumnDefinition Width="375" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--Exit and Start buttons-->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" 
+                                VerticalAlignment="Center">
+
+                        <!--Exit button-->
+                        <Button Style="{DynamicResource RoundButton}"
+                            Name="btnExit"
+                            Width="45"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Margin="5,5,0,5"
+                            Click="btnExit_Click">
+                            <Image Source="Images/Icons/Exit.png"
+                                Width="40"/>
+                        </Button>
+                        <Label
+                            Name="btnExitLabel"
+                            FontFamily="Papyrus"
+                            FontWeight="Bold"
+                            FontSize="28"
+                            Foreground="White">Exit</Label>
+                        <!--End Exit button-->
+
+                        <!--Start button-->
+                        <Button Style="{DynamicResource RoundButton}"
+                            x:Name="btnStart"
+                            Width="45"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Margin="10,5,0,5"
+                            Click="btnStart_Click">
+                            <Image Name="btnStartImage" Source="Images/Icons/Start.png"
+                                Width="40"/>
+                        </Button>
+                        <Label
+                            Name ="btnStartLabel"
+                            Margin="0,0,10,0"
+                            FontFamily="Papyrus"
+                            FontWeight="Bold"
+                            FontSize="28"
+                            Foreground="White">Start</Label>
+                        <!--End Start button-->
+                      
+                    </StackPanel>
+
+                    <Border Style="{StaticResource SeparatorStyleVertical}"
+                        HorizontalAlignment="Right"
+                        Grid.Column="0"/>
+                    <!--End Exit and Start buttons-->
+
+                    <!--Instrument Settings button-->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{DynamicResource RoundButton}"
+                            Name="btnInstrumentSettings"
+                            Width="45"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Margin="5,5,0,5"
+                            Click="btnInstrumentSettings_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Image Name="btnInstrumentSettingImage"
+                                Source="Images/Icons/Settings.png"
+                                Width="40"/>
+                        </Button>
+                        <Label Name="btnInstrumentSettingLabel"
+                            Margin="0,0,10,0"
+                            FontFamily="Papyrus"
+                            FontWeight="Bold"
+                            FontSize="28"
+                            Foreground="White">Instrument Settings</Label>
+                    </StackPanel>
+
+                    <Border Style="{StaticResource SeparatorStyleVertical}"
+                        HorizontalAlignment="Right"
+                        Grid.Column="1"/>
+                    <!--End Instrument Settings button-->
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,15,0">
+
+                        <!--Eye Button-->
+                        <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnCtrlEye"
+                            Width="45"
+                            Height="45"
+                            Margin ="5,0,0,0"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="Black"
+                            BorderThickness="3"
+                            Click="btnCtrlEye_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush x:Name="btnEyeImage"
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+                            <Image Source="Images/Icons/Eye.png"
+                                Margin="0,0,0,0"
+                                Width="auto"
+                                Height="35" 
+                                VerticalAlignment="Center"/>
+                        </Button>
+
+                        <!--End Eye Buttons-->
+
+                        <!--Rotation Button-->
+                        <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnRotation"
+                            Width="45"
+                            Height="45"
+                            Margin ="5,0,0,0"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="Black"
+                            BorderThickness="3"
+                            Click="btnRotation_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush x:Name="btnRotationImage"
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+                            <Image Source="Images/Icons/Rotation.png"
+                                Margin="0,0,0,0"
+                                Width="30"
+                                Height="auto" 
+                                VerticalAlignment="Center"/>
+                        </Button>
+
+                        <!--End Rotation Buttons-->
+
+                        <!--Key Name-->
+                        <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnCtrlKeyName"
+                            Width="45"
+                            Height="45"
+                            Margin ="5,0,0,0"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="Black"
+                            BorderThickness="3"
+                            Click="btnCtrlKeyName_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush x:Name="btnKeyNameImage"
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+                            <Image Source="Images/Icons/KeyName.png"
+                                Margin="0,0,0,0"
+                                Width="auto"
+                                Height="27" 
+                                VerticalAlignment="Center"/>
+                        </Button>
+                        <!--End Key Name-->
+
+                        <!--Note Visualizer-->
+                        <StackPanel Margin="15,0,0,0" Orientation="Horizontal" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+                            <Border
+                            Width="65"
+                            Height="40"
+                            BorderBrush="Black"
+                            BorderThickness="3,3,2,3"
+                            CornerRadius="5,0,0,5">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="Images/Backgrounds/Buttons.jpeg"/>
+                                </Border.Background>
+                                <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom"
+                                x:Name="txtPitch"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="25"
+                                Text="_"
+                                Foreground="White"
+                                TextAlignment="Center" Margin="0,0,0,5" />
+                            </Border>
+                            <Border
+                            Width="65"
+                            Height="40"
+                            BorderBrush="Black"
+                            BorderThickness="1,3,1,3">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="Images/Backgrounds/Buttons.jpeg"/>
+                                </Border.Background>
+                                <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                x:Name="txtNoteName"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="25"
+                                Text="_"
+                                Foreground="White"
+                                TextAlignment="Center" />
+                            </Border>
+                            <Border
+                                Width="65"
+                                Height="40"
+                                BorderBrush="Black"
+                                BorderThickness="2,3,3,3" 
+                                CornerRadius="0,5,5,0">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="Images/Backgrounds/Buttons.jpeg"/>
+                                </Border.Background>
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    x:Name="txtVelocityMouth"
+                                    FontFamily="Digital-7 Italic"
+                                    FontSize="25"
+                                    Foreground="White"
+                                    Text="_"
+                                    TextAlignment="Center" />
+                            </Border>
+                        </StackPanel>
+                        <!--End Note Visualizer-->
+                    </StackPanel>
+                </Grid>
+
+            </Border>
+
+            <!--Right Top Bar Embellishment-->
+            <Image Source="Images/Embellishments/LeftRight_TopBar.png"
+                    Margin="10,5,0,5"
+                    Width="auto"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Top"
+                ></Image>
+            <!--End Right Top Bar Embellishment-->
+
+        </StackPanel>
+        <!--#endregion End Top Bar (Row 0)-->
+
+        <!--#region Kiroll (Row 1)-->
+        <Border Grid.Row="1" VerticalAlignment="Stretch" 
+                HorizontalAlignment="Stretch" Margin="5,0,5,5" 
+                Width="auto" Height="auto" BorderThickness="3" 
+                CornerRadius="8" BorderBrush="Black">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="117*"/>
+                    <ColumnDefinition Width="1787*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="12*" />
+                </Grid.RowDefinitions>
+                <ScrollViewer x:Name="scrlKiroll" 
+                                        Width="Auto" Height="Auto" Grid.Row="0"
+                                        HorizontalScrollBarVisibility="Hidden" 
+                                        VerticalScrollBarVisibility="Hidden" Grid.ColumnSpan="2">
+
+                    <!--Canvas allows to place elements by coordinates-->
+                    <Canvas x:Name="canvasKiroll" VerticalAlignment="Stretch"
+                                    HorizontalAlignment="Stretch" Margin="0,0,0,0"
+                                    Width="1520" Height="783">
+                        <Canvas.Background>
+                            <SolidColorBrush Color="Black" Opacity="0.8" />
+                        </Canvas.Background>
+                    </Canvas>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- #region Kiroll's Setting_1 Window-->
+        <Border Name="WindowInstrumentSettings_1" 
+            Grid.Row="1"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            CornerRadius="8" 
+            Margin="20,20,0,0"
+            Width="400"  
+            Height="700" 
+            BorderBrush="Black"
+            BorderThickness="3"
+            Visibility="Hidden">
+
+            <Border.Background>
+                <ImageBrush ImageSource="/Images/Backgrounds/TopBar.jpg" TileMode="Tile" />
+            </Border.Background>
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+
+                </Grid.RowDefinitions>
+
+                <!--Title-->
+                <StackPanel Grid.Row="0"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label
+                        Margin="0,5,0,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="28"
+                        HorizontalAlignment="Center"
+                        Foreground="White">Main Settings</Label>
+                </StackPanel>
+                <!--End Title-->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="0" VerticalAlignment="Bottom"/>
+
+                <!--Keyboard and Breath Buttons-->
+                <StackPanel Grid.Row="1"  Orientation="Horizontal" VerticalAlignment="Center" 
+                            HorizontalAlignment="Center">
+                    <!--Keyboard Button-->
+                    <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnCtrlKeyboard"
+                            Width="50"
+                            Height="50"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            Click="btnCtrlKeyboard_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush x:Name="btnKeyboardImage"
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+                    </Button>
+                    <Image Source="Images/Icons/Keyboard.png"
+                                Margin="10,0,35,0"
+                                Width="65"
+                                Height="auto" 
+                                VerticalAlignment="Center"/>
+                    <!--End Keyboard Button-->
+
+                    <!--Breath Button-->
+                    <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnCtrlBreath"
+                            Width="50"
+                            Height="50"
+                            Margin ="0,0,0,0"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            Click="btnCtrlBreath_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush x:Name="btnBreathImage"
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+                    </Button>
+                    <Image Source="Images/Icons/Breath.png"
+                                Margin="10,0,0,0"
+                                Width="auto"
+                                Height="45" 
+                                VerticalAlignment="Center"/>
+                    <!--End Breath Button-->
+                </StackPanel>
+                <!--end Keyboard and Breath Buttons-->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="1"
+                            VerticalAlignment="Bottom"/>
+
+                <!--Key-->
+                <StackPanel Grid.Row="2"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+                    <Label
+                        Margin="55,0,15,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="39">Key</Label>
+
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnScaleMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnScaleMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+                    <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                        <TextBlock
+                                Name="txtScale"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="White"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                    </Border>
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnScalePlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnScalePlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+
+                </StackPanel>
+                <!--End Key-->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="2"
+                            VerticalAlignment="Bottom"/>
+
+                <StackPanel Grid.Row="3"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+                    <!--Scale-->
+                    <Label
+                        Margin="40,0,15,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="36">Scale</Label>
+
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnCodeMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnCodeMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+                    <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                        <TextBlock
+                                Name="txtCode"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="White"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                    </Border>
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnCodePlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnCodePlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+                    <!--End Scale-->
+                </StackPanel>
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="3"
+                            VerticalAlignment="Bottom"/>
+
+                <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!-- Octave-->
+                    <Label
+                        Margin="40,0,15,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="36">Octave</Label>
+
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnOctaveMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnOctaveMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+                    <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                        <TextBlock
+                                Name="txtOctave"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="White"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                    </Border>
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnOctavePlus"
+                            Margin="5,0,15,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnOctavePlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+                    <!--End Octave-->
+                </StackPanel>
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="4"
+                            VerticalAlignment="Bottom"/>
+
+                <!--MIDI Port-->
+
+                <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
+
+                    <Label
+                        Margin="0,0,16,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="35">MIDI Port</Label>
+
+                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnMidiPortMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnMidiPortMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                        <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                            <TextBlock
+                                Name="txtMidiPort"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="LightCoral"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                        </Border>
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnMidiPortPlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnMidiPortPlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                    </StackPanel>
+                    <!--End MIDI Port-->
+                </StackPanel>
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="5"
+                            VerticalAlignment="Bottom"/>
+
+                <!-- Breath Port -->
+                <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Label
+                        Margin="0,0,5,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="35">Breath Port</Label>
+
+                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnBreathPortMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnBreathPortMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                        <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                            <TextBlock
+                                Name="txtBreathPort"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="LightCoral"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                        </Border>
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnBreathPortPlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnBreathPortPlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                    </StackPanel>
+
+                </StackPanel>
+                <!-- End Breath Port -->
+            </Grid>
+
+        </Border>
+        <!-- #endregion Kiroll's Setting_1 Window-->
+
+        <!-- #region Kiroll's Setting_2 Window-->
+        <Border Name="WindowInstrumentSettings_2" 
+            Grid.Row="1"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            CornerRadius="8" 
+            Margin="0,20,20,0"
+            Width="400"  
+            Height="700"
+            BorderBrush="Black"
+            BorderThickness="3"
+            Visibility="Hidden">
+
+            <Border.Background>
+                <ImageBrush ImageSource="/Images/Backgrounds/TopBar.jpg" TileMode="Tile" />
+            </Border.Background>
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <!--Title-->
+                <StackPanel Grid.Row="0"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label
+                        Margin="0,5,0,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="28"
+                        HorizontalAlignment="Center"
+                        Foreground="White">Graphics and Tools</Label>
+                </StackPanel>
+                <!--End Title-->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="0" VerticalAlignment="Bottom"/>
+
+                <!--Sharp Notes and SlidePlay Buttons-->
+                <StackPanel Grid.Row="1"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+                    <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnSharpNotes"
+                            Width="50"
+                            Height="50"
+                            Margin="25,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            Click="btnSharpNotes_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+                    </Button>
+
+                    <Label
+                        Margin="0,0,15,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="37">Sharp Notes</Label>
+
+                    <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnSlidePlay"
+                            Width="50"
+                            Height="50"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            Click="btnSlidePlay_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+                    </Button>
+
+                    <Label
+                        Margin="0,0,5,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="40">Slide Play</Label>
+
+                </StackPanel>
+                <!--End Sharp Notes and SlidePlay Buttons-->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                        Grid.Row="1"
+                        VerticalAlignment="Bottom"/>
+
+                <!-- Blink Behaviors -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+
+                    <Button Style="{DynamicResource RoundButton}"                      
+                            Name="btnBlink"
+                            Width="50"
+                            Height="50"
+                            Margin="0,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Stretch"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            Click="btnBlink_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+                    </Button>
+
+                    <Label
+                        Margin="0,0,15,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="35">Blink</Label>
+
+                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnBlinkMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnBlinkMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                        <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                            <TextBlock
+                                Name="txtBlink"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="DarkRed"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                        </Border>
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnBlinkPlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnBlinkPlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <!-- End Blink Behaviors -->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                        Grid.Row="2"
+                        VerticalAlignment="Bottom"/>
+
+                <!-- Metronome-->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+
+                    <Button Style="{DynamicResource RoundButton}"
+                            x:Name="btnMetronome"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            Margin="0,0,0,0"
+                            Click="btnMetronome_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush ImageSource="Images/Backgrounds/Buttons.jpeg"/>
+                        </Button.Background>
+                    </Button>
+                    <Image Source="Images/Icons/Metronome.png"
+                                Width="40" Margin="0,0,30,0"/>
+
+                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnMetrnomeMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnMetrnomeMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                        <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                            <TextBlock
+                                Name="txtMetronome"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="LightCoral"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                        </Border>
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnMetrnomePlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnMetrnomePlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <!-- End Metronome-->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                        Grid.Row="3"
+                        VerticalAlignment="Bottom"/>
+
+                <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!-- BlowMode -->
+                    <Label
+                        Margin="0,0,10,0"
+                        FontFamily="Papyrus"
+                        FontWeight="Bold"
+                        FontSize="20"
+                        Foreground="White" Height="36">Blow Mode</Label>
+
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnBSwitchMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnBSwitchMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+                    <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                        <TextBlock
+                                Name="txtBSwitc"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="DarkRed"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                    </Border>
+                    <Button Style="{StaticResource RoundButton}"
+                            Name="btnBSwitcPlus"
+                            Margin="5,0,15,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnBSwitcPlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                        <Button.Background>
+                            <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                        </Button.Background>
+
+                        <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                    </Button>
+
+                </StackPanel>
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                        Grid.Row="4"
+                        VerticalAlignment="Bottom"/>
+
+                <!-- End BlowMode -->
+
+                <!-- Key Vertical Distance-->
+                <StackPanel Grid.Row="5" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label
+                            Name="LblVerticalDistance"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="0,0,0,0"
+                            FontFamily="Papyrus"
+                            FontWeight="Bold"
+                            FontSize="20"
+                            HorizontalAlignment="Center"
+                            Foreground="White">Keys vertical distance</Label>
+
+                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnVerticalDistanceMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnVerticalDistanceMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                        <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                            <TextBlock
+                                Name="txtVerticalDistance"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="White"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                        </Border>
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnVerticalDistancePlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnVerticalDistancePlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                    </StackPanel>
+
+                </StackPanel>
+                <!-- End Key Vertical Distance-->
+
+                <Border Style="{StaticResource SeparatorStyleHorizontal}"
+                            Grid.Row="5"
+                            VerticalAlignment="Bottom"/>
+
+                <!-- Keys Horizontal Distance-->
+                <StackPanel Grid.Row="6" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                    <Label
+                            Name="LblHorizontalDistance"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="0,0,0,0"
+                            FontFamily="Papyrus"
+                            FontWeight="Bold"
+                            FontSize="20"
+                            HorizontalAlignment="Center"
+                            Foreground="White">Keys horizontal distance</Label>
+
+                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnHorizontalDistanceMinus"
+                            Margin="0,0,5,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnHorizontalDistanceMinus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Left_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                        <Border
+                            Width="100"
+                            Height="40"
+                            Background="Black"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="2"
+                            Visibility="Visible">
+                            <TextBlock
+                                Name="txtHorizontalDistance"
+                                Background="Black"
+                                FontFamily="Digital-7 Italic"
+                                FontSize="27"
+                                Foreground="White"
+                                Text=""
+                                VerticalAlignment="Center"
+                                TextAlignment="Center" />
+                        </Border>
+                        <Button Style="{StaticResource RoundButton}"
+                            Name="btnHorizontalDistancePlus"
+                            Margin="5,0,0,0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="Transparent"
+                            BorderThickness="2"
+                            Click="btnHorizontalDistancePlus_Click"
+                            MouseEnter="eyeGazeHandler">
+                            <Button.Background>
+                                <ImageBrush
+                                ImageSource="Images/Backgrounds/Buttons.jpeg"
+                                Stretch="None"
+                                TileMode="Tile" />
+                            </Button.Background>
+
+                            <Image Source="Images/Icons/Right_arrow.png"
+                                   Width="auto"
+                                   Height="auto"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <!-- End Keys Horizontal Distance-->
+
+            </Grid>
+        </Border>
+        <!-- #endregion Kiroll's Setting_2 Window-->
+
+        <!--#endregion Kiroll (Row 1)-->
+
+    </Grid>
+</Window>
