@@ -22,7 +22,7 @@ for selecting notes, and the space bar, as an alternative to the breath sensor, 
 <h2>Software required:</h2>
 
 - Microsoft .NET Framework Runtime.
-- Kiroll depends on a library developed once again by Neeqstock, called NeeqDMIs, 
+- Kiroll depends on a library developed once again by Nicola, called NeeqDMIs, 
 written specifically to make it faster and easier to develop accessible digital tools
 from interaction channels on the musician's face (e.g., eyes, mouth...). 
 Below the link to the GitHub repository: https://github.com/Neeqstock/NeeqDMIs.
