@@ -7,6 +7,9 @@ for full autonomous use of the same, even in the presence of severe motor limita
 
 The instrument was developed by Luca Valente as a thesis project at the conclusion of the three-year course of study in 'Musical Informatics'.
 
+<h2>Demo video</h2>
+A [demo video](https://raw.githubusercontent.com/LIMUNIMI/Kiroll/main/Demo%20video/Kiroll%20demo%20%2B%20Gaze%20Trace.mp4) of this instrument being played (screen capture) is available in this repository.
+
 <h2>Hardware needed</h2>
 
 - Tobii Eye Tracker 5, eye tracker with which the instrument was tested and developed (https://gaming.tobii.com/product/eye-tracker-5).
